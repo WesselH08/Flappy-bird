@@ -1,22 +1,22 @@
 [NEAT]
 fitness_criterion     = max
-fitness_threshold     = 1000
-pop_size              = 20
-reset_on_extinction   = False
+fitness_threshold     = 1000  # De training heeft als doel een fitnessscore van minimaal 1000 te bereiken
+pop_size              = 20    # Aantal vogels (genomen) dat per generatie wordt getraind
+reset_on_extinction   = False # De populatie wordt niet opnieuw gestart als een soort volledig uitsterft
 no_fitness_termination = False
 
 [DefaultGenome]
-# node activation options
+# Bepaalt welke activatiefunctie de neuronen gebruiken
 activation_default      = tanh
 activation_mutate_rate  = 0.0
 activation_options      = tanh
 
-# node aggregation options
+# Bepaalt hoe de invoerwaarden van een neuron worden gecombineerd
 aggregation_default     = sum
 aggregation_mutate_rate = 0.0
 aggregation_options     = sum
 
-# node bias options
+# Instellingen voor de bias: een extra waarde die de uitvoer van een neuron beïnvloedt
 bias_init_mean          = 0.0
 bias_init_stdev         = 1.0
 bias_max_value          = 30.0
@@ -25,32 +25,32 @@ bias_mutate_power       = 0.5
 bias_mutate_rate        = 0.7
 bias_replace_rate       = 0.1
 
-# genome compatibility options
+# Bepaalt hoe verschillend twee genomen moeten zijn om bij verschillende soorten te horen
 compatibility_disjoint_coefficient = 1.0
 compatibility_weight_coefficient   = 0.5
 
-# connection add/remove rates
+# Kans dat er verbindingen tussen neuronen worden toegevoegd of verwijderd tijdens mutaties
 conn_add_prob           = 0.5
 conn_delete_prob        = 0.5
 
-# connection enable options
+# Bepaalt of verbindingen standaard actief zijn en hoe vaak hun status verandert
 enabled_default         = True
 enabled_mutate_rate     = 0.01
 
 feed_forward            = True
-# changed in v0.92
+# Het netwerk bevat geen terugkerende verbindingen (recurrent connections)
 initial_connection      = full_nodirect
 
-# node add/remove rates
+# Kans dat er tijdens een mutatie een neuron wordt toegevoegd of verwijderd
 node_add_prob           = 0.2
 node_delete_prob        = 0.2
 
-# network parameters
-num_hidden              = 0
-num_inputs              = 3
-num_outputs             = 1
+# Aantal neuronen in de verschillende lagen van het neurale netwerk
+num_hidden              = 0    # Geen verborgen neuronen bij de start; NEAT kan deze later toevoegen
+num_inputs              = 3    # Drie invoerwaarden: positie vogel en afstand tot boven- en onderkant opening
+num_outputs             = 1    # Eén uitvoerwaarde die bepaalt of de vogel springt
 
-# node response options
+# Instellingen voor de respons van neuronen
 response_init_mean      = 1.0
 response_init_stdev     = 0.0
 response_max_value      = 30.0
@@ -59,7 +59,7 @@ response_mutate_power   = 0.0
 response_mutate_rate    = 0.0
 response_replace_rate   = 0.0
 
-# connection weight options
+# Instellingen voor de gewichten van verbindingen tussen neuronen
 weight_init_mean        = 0.0
 weight_init_stdev       = 1.0
 weight_max_value        = 30
@@ -69,13 +69,13 @@ weight_mutate_rate      = 0.8
 weight_replace_rate     = 0.1
 
 [DefaultSpeciesSet]
-compatibility_threshold = 3.0
+compatibility_threshold = 3.0 # Bepaalt hoe verschillend genomen mogen zijn om tot dezelfde soort te behoren
 
 [DefaultStagnation]
 species_fitness_func = max
-max_stagnation       = 20
-species_elitism      = 2
+max_stagnation       = 20    # Een soort wordt als niet-verbeterend beschouwd na 20 generaties zonder vooruitgang
+species_elitism      = 2     # De twee beste soorten worden beschermd tegen uitsterven
 
 [DefaultReproduction]
-elitism            = 2
-survival_threshold = 0.2
+elitism            = 2       # De twee beste genomen worden rechtstreeks meegenomen naar de volgende generatie
+survival_threshold = 0.2     # Alleen de beste 20% van een soort mag zich voortplanten
