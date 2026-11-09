@@ -1,4 +1,5 @@
 
+#zie de andere bestanden voor duidelijke uitleg
 import pygame
 import os
 import pickle
