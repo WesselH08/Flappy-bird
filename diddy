@@ -11,8 +11,10 @@ import os
 import time
 import neat
 #import visualize
-#import pickle
+import pickle
 pygame.font.init()  # init font
+
+TARGET_SCORE = 1001
 
 WIN_WIDTH = 600
 WIN_HEIGHT = 800
@@ -29,7 +31,7 @@ bg_img = pygame.transform.scale(pygame.image.load(os.path.join("imgs","bg.png"))
 bird_images = [pygame.transform.scale2x(pygame.image.load(os.path.join("imgs","bird" + str(x) + ".png"))) for x in range(1,4)]
 base_img = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs","base.png")).convert_alpha())
 
-gen = 0
+gen = 1
 
 class Bird:
     """
@@ -320,7 +322,7 @@ def eval_genomes(genomes, config):
     ge = []
     
     for genome_id, genome in genomes:
-        genome.fitness = 5
+        genome.fitness = 0
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         nets.append(net)
         birds.append(Bird(230,350))
@@ -334,7 +336,7 @@ def eval_genomes(genomes, config):
 
     run = True
     while run and len(birds) > 0:
-        clock.tick(100)
+        clock.tick(600)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -380,11 +382,24 @@ def eval_genomes(genomes, config):
 
         if add_pipe:
             score += 1
-            
+
             for genome in ge:
-                genome.fitness += 5
-            
+                genome.fitness += 100
+
             pipes.append(Pipe(WIN_WIDTH))
+
+            # Stop training zodra de doel-score is bereikt
+            if score >= TARGET_SCORE:
+                print("Target score bereikt:", score)
+
+                best_genome = max(ge, key=lambda genome: genome.fitness)
+
+                with open("winner.pkl", "wb") as f:
+                    pickle.dump(best_genome, f)
+
+                print("Beste vogel opgeslagen in winner.pkl!")
+
+                run = False
 
         for r in rem:
             pipes.remove(r)
@@ -423,12 +438,8 @@ def run(config_file):
     print('\nBest genome:\n{!s}'.format(winner))
     
     # Save the winner genome to a pickle .pkl file
-    #with open("winner.pkl", "wb") as f:
-    #    pickle.dump(winner, f)
-    #
-    #to play the endgame with only the best bird e.g.
-    #play_with_best_bird("winner.pkl", config)
-
+    with open("winner.pkl", "wb") as f:
+        pickle.dump(winner, f)
 if __name__ == '__main__':
     # Determine path to configuration file. This path manipulation is
     # here so that the script will run successfully regardless of the
