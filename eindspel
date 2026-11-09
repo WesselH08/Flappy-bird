@@ -1,0 +1,114 @@
+
+import pygame
+import os
+import pickle
+import neat
+import random
+
+from Po2 import Bird, Pipe, Base, draw_window
+from Po2 import WIN, WIN_WIDTH, WIN_HEIGHT, FLOOR
+
+pygame.font.init()
+
+STAT_FONT = pygame.font.SysFont("comicsans", 50)
+END_FONT = pygame.font.SysFont("comicsans", 70)
+
+
+def play_with_best_bird():
+
+    # Load NEAT configuration
+    local_dir = os.path.dirname(__file__)
+    config_path = os.path.join(local_dir, "config-feedforward.txt")
+
+    config = neat.config.Config(
+        neat.DefaultGenome,
+        neat.DefaultReproduction,
+        neat.DefaultSpeciesSet,
+        neat.DefaultStagnation,
+        config_path
+    )
+
+    # Load the best bird from winner.pkl
+    with open(os.path.join(local_dir, "winner.pkl"), "rb") as f:
+        winner = pickle.load(f)
+
+    # Create neural network using the saved winner
+    net = neat.nn.FeedForwardNetwork.create(winner, config)
+
+    print("Best bird loaded! Starting endgame...")
+
+    # Initialize only ONE bird
+    bird = Bird(230, 350)
+    base = Base(FLOOR)
+    pipes = [Pipe(700)]
+
+    score = 0
+    clock = pygame.time.Clock()
+    running = True
+
+    while running:
+
+        clock.tick(100)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        # Find closest pipe
+        pipe_ind = 0
+
+        if len(pipes) > 1 and bird.x > pipes[0].x + pipes[0].PIPE_TOP.get_width():
+            pipe_ind = 1
+
+        # AI makes decision
+        output = net.activate((
+            bird.y,
+            abs(bird.y - pipes[pipe_ind].height),
+            abs(bird.y - pipes[pipe_ind].bottom)
+        ))
+
+        if output[0] > 0.5:
+            bird.jump()
+
+        bird.move()
+        base.move()
+
+        # Move pipes
+        add_pipe = False
+        remove = []
+
+        for pipe in pipes:
+            pipe.move()
+
+            if pipe.collide(bird, WIN):
+                running = False
+
+            if pipe.x + pipe.PIPE_TOP.get_width() < 0:
+                remove.append(pipe)
+
+            if not pipe.passed and pipe.x < bird.x:
+                pipe.passed = True
+                add_pipe = True
+
+        if add_pipe:
+            score += 1
+            pipes.append(Pipe(WIN_WIDTH))
+
+        for pipe in remove:
+            pipes.remove(pipe)
+
+        # Check boundaries
+        if bird.y + bird.img.get_height() - 10 >= FLOOR or bird.y < -50:
+            running = False
+
+        # Draw only the best bird
+        draw_window(WIN, [bird], pipes, base, score, 1, pipe_ind)
+
+    # Game over
+    print("Game Over! Final score:", score)
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    play_with_best_bird()
